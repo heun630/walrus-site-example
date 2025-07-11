@@ -8,7 +8,7 @@ An example site with automatic deployment and updates to Walrus Mainnet.
 - **Distributed Storage**: High availability guaranteed by distributed storage across 100+ nodes worldwide
 - **Real-time Updates**: Code changes are reflected immediately
 - **CI/CD Pipeline**: Automated build and deployment via GitHub Actions
-- **Modern Tech Stack**: React + Vite + Walrus Sites Deploy
+- **Modern Tech Stack**: React + Vite + MystenLabs site-builder
 
 ## 🛠️ Setup Guide
 
@@ -27,10 +27,13 @@ curl -fsSL https://raw.githubusercontent.com/suibase/suibase/main/scripts/common
 sui client new-address --alias walrus-deploy
 ```
 
-### 2. GitHub Secrets Setup
+### 2. GitHub Secrets and Variables Setup
 
-Go to GitHub repository Settings → Secrets and variables → Actions:
+**Secrets** (Settings → Secrets and variables → Actions → Secrets):
 - `SUI_PRIVATE_KEY`: Add your Sui wallet's private key
+
+**Variables** (Settings → Secrets and variables → Actions → Variables):
+- `WALRUS_SITE_OBJECT`: Site object ID (auto-created on first deployment)
 
 ### 3. Local Development
 

@@ -10,13 +10,18 @@ This project is configured for Walrus Mainnet deployment.
 
 ## 🎯 Mainnet Deployment Steps
 
-### 1. GitHub Secrets Setup
+### 1. GitHub Secrets and Variables Setup
 
-Go to GitHub repository Settings → Secrets and variables → Actions:
-
+**Repository Secrets** (Settings → Secrets and variables → Actions → Secrets):
 ```
 Name: SUI_PRIVATE_KEY
 Value: <your_exported_sui_private_key>
+```
+
+**Repository Variables** (Settings → Secrets and variables → Actions → Variables):
+```
+Name: WALRUS_SITE_OBJECT
+Value: <site_object_id_after_first_deployment>
 ```
 
 Export your private key using:
@@ -24,7 +29,7 @@ Export your private key using:
 sui keytool export --key-identity <your-key-alias>
 ```
 
-**Important**: Use the secret name `SUI_PRIVATE_KEY` (the workflow maps this to `ED25519_PRIVATE_KEY` internally)
+**Note**: Leave `WALRUS_SITE_OBJECT` empty for first deployment - it will be created automatically.
 
 ### 2. Token Preparation
 
@@ -43,11 +48,11 @@ sui client balance
 
 ### 3. Configuration
 
-The project uses `site.config.json` for Walrus Sites configuration:
+The project uses MystenLabs official `site-builder` tool:
 - **Network**: mainnet
-- **Portal**: wal.app  
 - **Epochs**: 5 (5 days of hosting)
-- **Gas Budget**: 500M MIST
+- **Tool**: Official site-builder from Google Cloud Storage
+- **Method**: Direct publish command
 
 ### 4. GitHub Actions Auto Deployment
 
@@ -57,7 +62,7 @@ git commit -m "Deploy to Walrus mainnet"
 git push origin main
 ```
 
-**Uses**: Official `zktx-io/walrus-sites-provenance@v0.5.0` action with SLSA provenance
+**Uses**: MystenLabs official `site-builder` tool (same as Walrus documentation deployment)
 
 ## ⚠️ Important Notes
 

@@ -3,16 +3,19 @@ name: Deploy to Walrus Mainnet
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
+  workflow_dispatch:
 
 permissions:
   contents: read
-  id-token: write
 
 concurrency:
   group: "walrus-deploy"
   cancel-in-progress: false
+
+env:
+  NO_COLOR: 1
+  RUST_LOG: info
+  EPOCHS: 5
 
 jobs:
   build-and-deploy:
@@ -33,12 +36,18 @@ jobs:
       
     - name: Build
       run: npm run build
+      
+    - name: Download site-builder
+      run: |
+        curl -L https://storage.googleapis.com/mysten-walrus-binaries/site-builder-mainnet-latest-ubuntu-x86_64 -o site-builder
+        chmod +x site-builder
         
     - name: Deploy to Walrus Sites
       if: github.ref == 'refs/heads/main'
-      uses: zktx-io/walrus-sites-provenance@v0.5.0
-      with:
-        directory: dist
-        network: mainnet
+      run: |
+        ./site-builder publish dist --epochs $EPOCHS
       env:
-        ED25519_PRIVATE_KEY: ${{ secrets.SUI_PRIVATE_KEY }}
+        SUI_CONFIG_DIR: /tmp/sui-config
+        SUI_KEYSTORE_PATH: /tmp/sui-config/sui.keystore
+        WALLET_PRIVATE_KEY: ${{ secrets.SUI_PRIVATE_KEY }}
+        WALRUS_SITE_OBJECT: ${{ vars.WALRUS_SITE_OBJECT }}
