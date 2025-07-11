@@ -67,6 +67,15 @@ jobs:
           # Create Walrus config
           echo '${{ vars.WALRUS_CONFIG }}' > ~/.config/walrus/client_config.yaml || mkdir -p ~/.config/walrus && echo '${{ vars.WALRUS_CONFIG }}' > ~/.config/walrus/client_config.yaml
 
-      - name: Update Walrus Site
+      - name: Deploy to Walrus Site
         run: |
-          ./site-builder update ${{ env.BUILD_DIR }} ${{ vars.WALRUS_SITE_OBJECT }} --epochs ${{ env.EPOCHS }} --check-extend
+          if [ -n "${{ vars.WALRUS_SITE_OBJECT }}" ]; then
+            echo "Updating existing site: ${{ vars.WALRUS_SITE_OBJECT }}"
+            ./site-builder update ${{ env.BUILD_DIR }} ${{ vars.WALRUS_SITE_OBJECT }} --epochs ${{ env.EPOCHS }} --check-extend
+          else
+            echo "Publishing new site..."
+            ./site-builder publish ${{ env.BUILD_DIR }} --epochs ${{ env.EPOCHS }}
+            echo ""
+            echo "⚠️  IMPORTANT: Add the returned site object ID to GitHub Variables as 'WALRUS_SITE_OBJECT'"
+            echo "   Settings → Secrets and variables → Actions → Variables"
+          fi
