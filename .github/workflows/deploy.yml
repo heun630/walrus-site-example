@@ -38,12 +38,12 @@ jobs:
       
     - name: Install Sui CLI
       run: |
-        # Download and install Sui CLI
-        SYSTEM="ubuntu-x86_64"
-        curl -L "https://github.com/MystenLabs/sui/releases/latest/download/sui-$SYSTEM-ubuntu.tgz" -o sui.tgz
+        # Download Sui CLI binary directly
+        curl -L https://github.com/MystenLabs/sui/releases/download/mainnet-v1.31.1/sui-mainnet-v1.31.1-ubuntu-x86_64.tgz -o sui.tgz
         tar -xzf sui.tgz
-        sudo mv sui-$SYSTEM-ubuntu/sui /usr/local/bin/sui
-        chmod +x /usr/local/bin/sui
+        chmod +x sui
+        sudo mv sui /usr/local/bin/
+        which sui && sui --version
         
     - name: Configure Sui Wallet
       run: |
