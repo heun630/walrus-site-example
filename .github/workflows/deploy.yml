@@ -47,6 +47,21 @@ jobs:
           curl -L https://storage.googleapis.com/mysten-walrus-binaries/site-builder-mainnet-latest-ubuntu-x86_64 -o site-builder
           chmod +x site-builder
           
+          # Check if required secrets/variables are set
+          if [ -z "${{ secrets.SUI_KEYSTORE }}" ]; then
+            echo "❌ SUI_KEYSTORE secret is not set!"
+            echo "   Go to Settings → Secrets and variables → Actions → Secrets"
+            echo "   Add: SUI_KEYSTORE with your keystore file content"
+            exit 1
+          fi
+          
+          if [ -z "${{ vars.SUI_ADDRESS }}" ]; then
+            echo "❌ SUI_ADDRESS variable is not set!"
+            echo "   Go to Settings → Secrets and variables → Actions → Variables"
+            echo "   Add: SUI_ADDRESS with your wallet address"
+            exit 1
+          fi
+          
           # Setup Sui configuration
           mkdir -p ~/.sui/sui_config
           echo '${{ secrets.SUI_KEYSTORE }}' > ~/.sui/sui_config/sui.keystore
@@ -64,8 +79,13 @@ jobs:
           active_address: "${{ vars.SUI_ADDRESS }}"
           EOF
           
-          # Create Walrus config
-          echo '${{ vars.WALRUS_CONFIG }}' > ~/.config/walrus/client_config.yaml || mkdir -p ~/.config/walrus && echo '${{ vars.WALRUS_CONFIG }}' > ~/.config/walrus/client_config.yaml
+          # Create Walrus config (optional for first deployment)
+          mkdir -p ~/.config/walrus
+          if [ -n "${{ vars.WALRUS_CONFIG }}" ]; then
+            echo '${{ vars.WALRUS_CONFIG }}' > ~/.config/walrus/client_config.yaml
+          else
+            echo "⚠️  WALRUS_CONFIG not set - using default configuration"
+          fi
 
       - name: Deploy to Walrus Site
         run: |
