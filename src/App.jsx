@@ -40,7 +40,7 @@ function App() {
         
         <div className="deployment-info">
           <div className="info-card">
-            <h3>🚀 Deployment Info</h3>
+            <h3>Deployment Info</h3>
             <p><strong>Deploy Time:</strong> {deployTime}</p>
             <p><strong>Site ID:</strong> {commitHash}</p>
             <p><strong>Network:</strong> Walrus Mainnet</p>
@@ -58,7 +58,7 @@ function App() {
           </div>
           
           <div className="info-card">
-            <h3>🛠️ Tech Stack</h3>
+            <h3>Tech Stack</h3>
             <ul>
               <li>React + Vite</li>
               <li>Walrus Sites Deploy</li>
