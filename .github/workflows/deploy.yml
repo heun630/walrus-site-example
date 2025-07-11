@@ -79,22 +79,42 @@ jobs:
           active_address: "${{ vars.SUI_ADDRESS }}"
           EOF
           
-          # Create Walrus config (optional for first deployment)
+          # Create Walrus config
           mkdir -p ~/.config/walrus
           if [ -n "${{ vars.WALRUS_CONFIG }}" ]; then
             echo '${{ vars.WALRUS_CONFIG }}' > ~/.config/walrus/client_config.yaml
           else
-            echo "⚠️  WALRUS_CONFIG not set - using default configuration"
+            echo "⚠️  WALRUS_CONFIG not set - creating default configuration"
+            cat > ~/.config/walrus/client_config.yaml << EOF
+          mainnet:
+            wallet_config: ~/.sui/sui_config/client.yaml
+            system_object: 0x2134d52768ea07e8c43570ef975eb3e4c27a39fa6396bef985b5abc58d03ddd2
+            gas_budget: 500000000
+            aggregator_endpoints:
+              - url: https://aggregator.walrus.space
+            publisher_endpoints:
+              - url: https://publisher.walrus.space
+          EOF
           fi
+          
+          # Create sites config for site-builder
+          cat > sites-config.yaml << EOF
+          package: "0x2134d52768ea07e8c43570ef975eb3e4c27a39fa6396bef985b5abc58d03ddd2"
+          general:
+            rpc_url: "https://fullnode.mainnet.sui.io:443"
+            wallet_config: "~/.sui/sui_config/client.yaml"
+            walrus_context: "mainnet"
+            gas_budget: 500000000
+          EOF
 
       - name: Deploy to Walrus Site
         run: |
           if [ -n "${{ vars.WALRUS_SITE_OBJECT }}" ]; then
             echo "Updating existing site: ${{ vars.WALRUS_SITE_OBJECT }}"
-            ./site-builder update ${{ env.BUILD_DIR }} ${{ vars.WALRUS_SITE_OBJECT }} --epochs ${{ env.EPOCHS }} --check-extend
+            ./site-builder --config sites-config.yaml update ${{ env.BUILD_DIR }} ${{ vars.WALRUS_SITE_OBJECT }} --epochs ${{ env.EPOCHS }} --check-extend
           else
             echo "Publishing new site..."
-            ./site-builder publish ${{ env.BUILD_DIR }} --epochs ${{ env.EPOCHS }}
+            ./site-builder --config sites-config.yaml publish ${{ env.BUILD_DIR }} --epochs ${{ env.EPOCHS }}
             echo ""
             echo "⚠️  IMPORTANT: Add the returned site object ID to GitHub Variables as 'WALRUS_SITE_OBJECT'"
             echo "   Settings → Secrets and variables → Actions → Variables"
