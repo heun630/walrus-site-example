@@ -74,8 +74,8 @@ jobs:
           envs:
             - alias: mainnet
               rpc: "https://fullnode.mainnet.sui.io:443"
-              ws: ~
-              basic_auth: ~
+              ws: null
+              basic_auth: null
           active_env: mainnet
           active_address: "${{ vars.SUI_ADDRESS }}"
           EOF
@@ -112,12 +112,25 @@ jobs:
 
       - name: Deploy to Walrus Site
         run: |
-          # Simple test first
-          echo "Testing site-builder..."
-          ./site-builder --help | head -5
+          # Debug configuration files
+          echo "=== Debugging Configuration Files ==="
+          echo "Sui client config:"
+          cat ~/.sui/sui_config/client.yaml
+          echo ""
+          echo "Walrus config:"
+          cat ~/.config/walrus/client_config.yaml
+          echo ""
+          echo "Sites config:"
+          cat sites-config.yaml
+          echo ""
           
-          echo "Testing without config first..."
-          ./site-builder publish ${{ env.BUILD_DIR }} --epochs ${{ env.EPOCHS }} || echo "Publish failed, trying with config..."
+          # Test walrus CLI directly
+          echo "=== Testing walrus CLI directly ==="
+          walrus --version || echo "Walrus version failed"
+          
+          # Simple test first
+          echo "=== Testing site-builder ==="
+          ./site-builder --help | head -5
           
           if [ -n "${{ vars.WALRUS_SITE_OBJECT }}" ]; then
             echo "Updating existing site: ${{ vars.WALRUS_SITE_OBJECT }}"
