@@ -1,8 +1,0 @@
-{
-  "network": "mainnet",
-  "epochs": 5,
-  "gas_budget": 100000000,
-  "force_update": false,
-  "source_folder": "./dist",
-  "site_object_id_file": ".walrus-site-id"
-}

@@ -24,6 +24,8 @@ Export your private key using:
 sui keytool export --key-identity <your-key-alias>
 ```
 
+**Important**: Use the secret name `SUI_PRIVATE_KEY` (the workflow maps this to `ED25519_PRIVATE_KEY` internally)
+
 ### 2. Token Preparation
 
 **Required tokens:**
@@ -39,15 +41,13 @@ sui client balance
 - Exchange SUI → WAL on Sui DEX or exchanges
 - Or let walrus-sites-deploy auto-purchase
 
-### 3. Local Testing (Optional)
+### 3. Configuration
 
-```bash
-# Build test
-npm run build
-
-# Mainnet deployment test (uses real tokens!)
-npm run deploy:walrus
-```
+The project uses `site.config.json` for Walrus Sites configuration:
+- **Network**: mainnet
+- **Portal**: wal.app  
+- **Epochs**: 5 (5 days of hosting)
+- **Gas Budget**: 500M MIST
 
 ### 4. GitHub Actions Auto Deployment
 
@@ -56,6 +56,8 @@ git add .
 git commit -m "Deploy to Walrus mainnet"
 git push origin main
 ```
+
+**Uses**: Official `zktx-io/walrus-sites-provenance@v0.5.0` action with SLSA provenance
 
 ## ⚠️ Important Notes
 

@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: read
+  id-token: write
 
 concurrency:
   group: "walrus-deploy"
@@ -32,53 +33,12 @@ jobs:
       
     - name: Build
       run: npm run build
-      
-    - name: Install Walrus Sites Deploy
-      run: npm install -g walrus-sites-deploy
-      
-    - name: Install Sui CLI
-      run: |
-        # Download Sui CLI binary directly
-        curl -L https://github.com/MystenLabs/sui/releases/download/mainnet-v1.31.1/sui-mainnet-v1.31.1-ubuntu-x86_64.tgz -o sui.tgz
-        tar -xzf sui.tgz
-        chmod +x sui
-        sudo mv sui /usr/local/bin/
-        which sui && sui --version
-        
-    - name: Configure Sui Wallet
-      run: |
-        # Initialize Sui configuration
-        mkdir -p ~/.sui/sui_config
-        
-        # Create basic client config
-        cat > ~/.sui/sui_config/client.yaml << EOF
-        keystore:
-          File: ~/.sui/sui_config/sui.keystore
-        envs:
-          - alias: mainnet
-            rpc: "https://fullnode.mainnet.sui.io:443"
-            ws: ~
-            basic_auth: ~
-        active_env: mainnet
-        active_address: "0x8de8fac3c17c10311b7e0fb8ed8c972e42eac5732388af83ccf8e320ff226ee8"
-        EOF
-        
-        # Import private key
-        echo "${{ secrets.SUI_PRIVATE_KEY }}" | sui keytool import ed25519 --alias deployment-key
         
     - name: Deploy to Walrus Sites
       if: github.ref == 'refs/heads/main'
-      run: |
-        cd dist
-        pnpx walrus-sites-deploy --network mainnet --epochs 5
+      uses: zktx-io/walrus-sites-provenance@v0.5.0
+      with:
+        directory: dist
+        network: mainnet
       env:
-        SUI_PRIVATE_KEY: ${{ secrets.SUI_PRIVATE_KEY }}
-        
-    - name: Save Site Info
-      if: github.ref == 'refs/heads/main'
-      run: |
-        echo "Deployment completed!"
-        if [ -f ".walrus-site-id" ]; then
-          echo "Site ID: $(cat .walrus-site-id)"
-          echo "Site URL: https://$(cat .walrus-site-id).wal.app"
-        fi
+        ED25519_PRIVATE_KEY: ${{ secrets.SUI_PRIVATE_KEY }}
