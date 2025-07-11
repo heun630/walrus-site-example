@@ -36,18 +36,35 @@ jobs:
     - name: Install Walrus Sites Deploy
       run: npm install -g walrus-sites-deploy
       
-    - name: Setup Suibase
+    - name: Install Sui CLI
       run: |
-        curl -fsSL https://raw.githubusercontent.com/suibase/suibase/main/scripts/common/install.sh | bash
-        export PATH="$HOME/.local/bin:$PATH"
-        ~/suibase/scripts/start mainnet
+        # Download and install Sui CLI
+        SYSTEM="ubuntu-x86_64"
+        curl -L "https://github.com/MystenLabs/sui/releases/latest/download/sui-$SYSTEM-ubuntu.tgz" -o sui.tgz
+        tar -xzf sui.tgz
+        sudo mv sui-$SYSTEM-ubuntu/sui /usr/local/bin/sui
+        chmod +x /usr/local/bin/sui
         
     - name: Configure Sui Wallet
       run: |
+        # Initialize Sui configuration
         mkdir -p ~/.sui/sui_config
-        echo "${{ secrets.SUI_PRIVATE_KEY }}" > ~/.sui/sui_config/sui.keystore
-        sui client switch --env mainnet
-        sui client switch --address 0x8de8fac3c17c10311b7e0fb8ed8c972e42eac5732388af83ccf8e320ff226ee8
+        
+        # Create basic client config
+        cat > ~/.sui/sui_config/client.yaml << EOF
+        keystore:
+          File: ~/.sui/sui_config/sui.keystore
+        envs:
+          - alias: mainnet
+            rpc: "https://fullnode.mainnet.sui.io:443"
+            ws: ~
+            basic_auth: ~
+        active_env: mainnet
+        active_address: "0x8de8fac3c17c10311b7e0fb8ed8c972e42eac5732388af83ccf8e320ff226ee8"
+        EOF
+        
+        # Import private key
+        echo "${{ secrets.SUI_PRIVATE_KEY }}" | sui keytool import ed25519 --alias deployment-key
         
     - name: Deploy to Walrus Sites
       if: github.ref == 'refs/heads/main'
