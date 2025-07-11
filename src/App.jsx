@@ -6,7 +6,15 @@ function App() {
   const [commitHash, setCommitHash] = useState('')
 
   useEffect(() => {
-    setDeployTime(new Date().toLocaleString('ko-KR'))
+    setDeployTime(new Date().toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      timeZoneName: 'short'
+    }))
     
     // Try to get site info from window location
     const hostname = window.location.hostname

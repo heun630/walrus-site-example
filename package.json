@@ -1,7 +1,7 @@
 {
   "name": "walrus-site-example",
   "version": "1.0.0",
-  "description": "Example walrus site with automatic deployment",
+  "description": "Example Walrus site with automatic deployment to mainnet",
   "main": "index.js",
   "scripts": {
     "dev": "vite",
@@ -11,7 +11,7 @@
     "deploy:walrus": "npm run build && pnpx walrus-sites-deploy --network mainnet --epochs 5",
     "deploy:walrus:testnet": "npm run build && pnpx walrus-sites-deploy --network testnet --epochs 1"
   },
-  "keywords": ["walrus", "site", "example", "deployment"],
+  "keywords": ["walrus", "site", "example", "deployment", "blockchain", "decentralized", "sui"],
   "author": "",
   "license": "MIT",
   "dependencies": {
