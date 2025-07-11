@@ -66,6 +66,10 @@ jobs:
           mkdir -p ~/.sui/sui_config
           echo '${{ secrets.SUI_KEYSTORE }}' > ~/.sui/sui_config/sui.keystore
           
+          # Debug: Check keystore file
+          echo "Keystore file size: $(wc -c < ~/.sui/sui_config/sui.keystore)"
+          echo "Keystore first line: $(head -n1 ~/.sui/sui_config/sui.keystore)"
+          
           # Create client config
           cat > ~/.sui/sui_config/client.yaml << EOF
           keystore:
@@ -109,6 +113,18 @@ jobs:
 
       - name: Deploy to Walrus Site
         run: |
+          # Test configuration first
+          echo "Testing site-builder configuration..."
+          ./site-builder --config sites-config.yaml --help || echo "Config test failed"
+          
+          # Show configuration files
+          echo "=== sites-config.yaml ==="
+          cat sites-config.yaml
+          echo "=== ~/.sui/sui_config/client.yaml ==="
+          cat ~/.sui/sui_config/client.yaml
+          echo "=== ~/.config/walrus/client_config.yaml ==="
+          cat ~/.config/walrus/client_config.yaml
+          
           if [ -n "${{ vars.WALRUS_SITE_OBJECT }}" ]; then
             echo "Updating existing site: ${{ vars.WALRUS_SITE_OBJECT }}"
             ./site-builder --config sites-config.yaml update ${{ env.BUILD_DIR }} ${{ vars.WALRUS_SITE_OBJECT }} --epochs ${{ env.EPOCHS }} --check-extend
