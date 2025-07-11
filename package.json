@@ -7,18 +7,21 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "lint": "eslint . --ext js,jsx,ts,tsx --report-unused-disable-directives --max-warnings 0"
+    "lint": "eslint . --ext js,jsx,ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "deploy:walrus": "npm run build && pnpx walrus-sites-deploy --network mainnet --epochs 5",
+    "deploy:walrus:testnet": "npm run build && pnpx walrus-sites-deploy --network testnet --epochs 1"
   },
   "keywords": ["walrus", "site", "example", "deployment"],
   "author": "",
   "license": "MIT",
-  "devDependencies": {
-    "vite": "^5.0.0",
-    "@vitejs/plugin-react": "^4.0.0",
-    "eslint": "^8.0.0"
-  },
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0",
+    "@vitejs/plugin-react": "^4.0.0",
+    "eslint": "^8.0.0",
+    "walrus-sites-deploy": "^0.1.0"
   }
 }

@@ -97,6 +97,22 @@ h1 {
   backdrop-filter: blur(10px);
 }
 
+.walrus-info {
+  margin: 1.5rem 0;
+  text-align: left;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.walrus-info p {
+  margin-bottom: 0.8rem;
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border-left: 3px solid #ffd700;
+}
+
 .status-indicator {
   display: flex;
   align-items: center;

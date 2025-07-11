@@ -1,4 +1,4 @@
-name: Deploy to GitHub Pages
+name: Deploy to Walrus Mainnet
 
 on:
   push:
@@ -8,15 +8,13 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
-  group: "pages"
+  group: "walrus-deploy"
   cancel-in-progress: false
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
     
     steps:
@@ -35,23 +33,35 @@ jobs:
     - name: Build
       run: npm run build
       
-    - name: Setup Pages
-      uses: actions/configure-pages@v4
+    - name: Install Walrus Sites Deploy
+      run: npm install -g walrus-sites-deploy
       
-    - name: Upload artifact
-      uses: actions/upload-pages-artifact@v3
-      with:
-        path: './dist'
-
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
-    if: github.ref == 'refs/heads/main'
-    
-    steps:
-    - name: Deploy to GitHub Pages
-      id: deployment
-      uses: actions/deploy-pages@v4
+    - name: Setup Suibase
+      run: |
+        curl -fsSL https://raw.githubusercontent.com/suibase/suibase/main/scripts/common/install.sh | bash
+        export PATH="$HOME/.local/bin:$PATH"
+        ~/suibase/scripts/start mainnet
+        
+    - name: Configure Sui Wallet
+      run: |
+        mkdir -p ~/.sui/sui_config
+        echo "${{ secrets.SUI_PRIVATE_KEY }}" > ~/.sui/sui_config/sui.keystore
+        sui client switch --env mainnet
+        sui client switch --address 0x8de8fac3c17c10311b7e0fb8ed8c972e42eac5732388af83ccf8e320ff226ee8
+        
+    - name: Deploy to Walrus Sites
+      if: github.ref == 'refs/heads/main'
+      run: |
+        cd dist
+        pnpx walrus-sites-deploy --network mainnet --epochs 5
+      env:
+        SUI_PRIVATE_KEY: ${{ secrets.SUI_PRIVATE_KEY }}
+        
+    - name: Save Site Info
+      if: github.ref == 'refs/heads/main'
+      run: |
+        echo "Deployment completed!"
+        if [ -f ".walrus-site-id" ]; then
+          echo "Site ID: $(cat .walrus-site-id)"
+          echo "Site URL: https://$(cat .walrus-site-id).wal.app"
+        fi

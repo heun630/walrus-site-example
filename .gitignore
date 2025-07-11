@@ -15,6 +15,10 @@ build/
 .env.test.local
 .env.production.local
 
+# Walrus deployment files
+.walrus-site-id
+walrus-site-*.json
+
 # IDE files
 .vscode/
 .idea/

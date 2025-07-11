@@ -8,10 +8,17 @@ function App() {
   useEffect(() => {
     setDeployTime(new Date().toLocaleString('ko-KR'))
     
-    fetch('https://api.github.com/repos/heun630/walrus-site-example/commits/main')
-      .then(res => res.json())
-      .then(data => setCommitHash(data.sha?.substring(0, 7) || 'unknown'))
-      .catch(() => setCommitHash('unknown'))
+    // Try to get site info from window location
+    const hostname = window.location.hostname
+    if (hostname.includes('.wal.app')) {
+      setCommitHash(hostname.split('.')[0].substring(0, 7))
+    } else {
+      // Fallback to GitHub API
+      fetch('https://api.github.com/repos/heun630/walrus-site-example/commits/main')
+        .then(res => res.json())
+        .then(data => setCommitHash(data.sha?.substring(0, 7) || 'unknown'))
+        .catch(() => setCommitHash('unknown'))
+    }
   }, [])
 
   return (
@@ -21,43 +28,49 @@ function App() {
           🦭
         </div>
         <h1>Walrus Site Example</h1>
-        <p className="subtitle">자동 배포 및 업데이트 예시</p>
+        <p className="subtitle">Automatic Deployment & Update Demo</p>
         
         <div className="deployment-info">
           <div className="info-card">
-            <h3>🚀 배포 정보</h3>
-            <p><strong>배포 시간:</strong> {deployTime}</p>
-            <p><strong>커밋 해시:</strong> {commitHash}</p>
-            <p><strong>브랜치:</strong> main</p>
+            <h3>🚀 Deployment Info</h3>
+            <p><strong>Deploy Time:</strong> {deployTime}</p>
+            <p><strong>Site ID:</strong> {commitHash}</p>
+            <p><strong>Network:</strong> Walrus Mainnet</p>
+            <p><strong>Domain:</strong> {window.location.hostname}</p>
           </div>
           
           <div className="info-card">
-            <h3>⚡ 자동 배포 기능</h3>
+            <h3>⚡ Auto Deployment Features</h3>
             <ul>
-              <li>main 브랜치에 푸시할 때마다 자동 배포</li>
-              <li>GitHub Actions를 통한 CI/CD</li>
-              <li>GitHub Pages로 자동 호스팅</li>
-              <li>실시간 업데이트 반영</li>
+              <li>Auto deploy on main branch push</li>
+              <li>CI/CD via GitHub Actions</li>
+              <li>Auto hosting on Walrus Mainnet</li>
+              <li>Real-time updates via distributed storage</li>
             </ul>
           </div>
           
           <div className="info-card">
-            <h3>🛠️ 기술 스택</h3>
+            <h3>🛠️ Tech Stack</h3>
             <ul>
               <li>React + Vite</li>
-              <li>GitHub Actions</li>
-              <li>GitHub Pages</li>
-              <li>자동화된 빌드 프로세스</li>
+              <li>Walrus Sites Deploy</li>
+              <li>Sui Blockchain</li>
+              <li>Distributed Storage (Walrus)</li>
             </ul>
           </div>
         </div>
         
         <div className="demo-section">
-          <h3>🔄 실시간 업데이트 테스트</h3>
-          <p>이 페이지는 코드 변경 시 자동으로 업데이트됩니다!</p>
+          <h3>🔄 Walrus Real-time Updates</h3>
+          <p>This page is hosted on Walrus Mainnet and automatically updates when code changes!</p>
+          <div className="walrus-info">
+            <p>🌐 <strong>Distributed Storage:</strong> Stored across 100+ nodes worldwide</p>
+            <p>⚡ <strong>High Availability:</strong> Accessible even if 2/3 of nodes go offline</p>
+            <p>🔒 <strong>Security:</strong> Verified through Sui blockchain</p>
+          </div>
           <div className="status-indicator">
             <span className="status-dot"></span>
-            배포 상태: 활성
+            Walrus Deployment Status: Active
           </div>
         </div>
       </header>

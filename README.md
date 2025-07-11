@@ -1,83 +1,160 @@
 # Walrus Site Example
 
-자동 배포 및 업데이트가 되는 예시 사이트입니다.
+An example site with automatic deployment and updates to Walrus Mainnet.
 
-## 🚀 기능
+## 🚀 Features
 
-- **자동 배포**: main 브랜치에 푸시할 때마다 자동으로 GitHub Pages에 배포
-- **실시간 업데이트**: 코드 변경사항이 즉시 반영
-- **CI/CD 파이프라인**: GitHub Actions를 통한 자동화된 빌드 및 배포
-- **모던 기술 스택**: React + Vite를 사용한 빠른 개발 환경
+- **Walrus Mainnet Deployment**: Automatic deployment to Walrus network on every main branch push
+- **Distributed Storage**: High availability guaranteed by distributed storage across 100+ nodes worldwide
+- **Real-time Updates**: Code changes are reflected immediately
+- **CI/CD Pipeline**: Automated build and deployment via GitHub Actions
+- **Modern Tech Stack**: React + Vite + Walrus Sites Deploy
 
-## 🛠️ 설정 방법
+## 🛠️ Setup Guide
 
-### 1. GitHub Pages 활성화
+### 1. Sui Wallet Setup
 
-1. GitHub 저장소 설정으로 이동
-2. Pages 섹션에서 Source를 "GitHub Actions"로 설정
-
-### 2. 로컬 개발
+First, you need a Sui wallet:
 
 ```bash
-# 의존성 설치
-npm install
+# Install Suibase
+curl -fsSL https://raw.githubusercontent.com/suibase/suibase/main/scripts/common/install.sh | bash
 
-# 개발 서버 시작
-npm run dev
+# Start mainnet environment
+~/suibase/scripts/start mainnet
 
-# 빌드
-npm run build
+# Generate new wallet address
+sui client new-address --alias walrus-deploy
 ```
 
-### 3. 자동 배포 확인
+### 2. GitHub Secrets Setup
 
-1. `main` 브랜치에 코드 변경사항 푸시
-2. GitHub Actions 탭에서 워크플로우 실행 확인
-3. 배포 완료 후 사이트 자동 업데이트 확인
+Go to GitHub repository Settings → Secrets and variables → Actions:
+- `SUI_PRIVATE_KEY`: Add your Sui wallet's private key
 
-## 📁 프로젝트 구조
+### 3. Local Development
+
+```bash
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+
+# Build
+npm run build
+
+# Deploy to Walrus mainnet (local)
+npm run deploy:walrus
+
+# Deploy to Walrus testnet (for testing)
+npm run deploy:walrus:testnet
+```
+
+### 4. SUI and WAL Token Preparation
+
+For Walrus deployment, you need:
+- **SUI tokens**: Transaction gas fees
+- **WAL tokens**: Walrus storage costs
+
+```bash
+# Check wallet balance
+sui client balance
+
+# Buy WAL tokens (if needed)
+# walrus-sites-deploy provides auto-purchase option
+```
+
+### 5. Auto Deployment Verification
+
+1. Push code changes to `main` branch
+2. Check workflow execution in GitHub Actions tab
+3. After deployment completion, check site at `https://[site-id].wal.app`
+
+## 📁 Project Structure
 
 ```
 walrus-site-example/
 ├── .github/
 │   └── workflows/
-│       └── deploy.yml          # GitHub Actions 배포 워크플로우
+│       └── deploy.yml          # Walrus deployment workflow
 ├── public/
-│   └── walrus.svg             # 파비콘
+│   └── walrus.svg             # Favicon
 ├── src/
-│   ├── App.jsx                # 메인 컴포넌트
-│   ├── App.css                # 스타일
-│   ├── main.jsx               # 진입점
-│   └── index.css              # 전역 스타일
-├── index.html                 # HTML 템플릿
-├── package.json               # 패키지 설정
-├── vite.config.js             # Vite 설정
-└── README.md                  # 프로젝트 문서
+│   ├── App.jsx                # Main component
+│   ├── App.css                # Styles
+│   ├── main.jsx               # Entry point
+│   └── index.css              # Global styles
+├── .env.example               # Environment variables example
+├── walrus.config.json         # Walrus deployment config
+├── index.html                 # HTML template
+├── package.json               # Package config (includes walrus-sites-deploy)
+├── vite.config.js             # Vite configuration
+└── README.md                  # Project documentation
 ```
 
-## 🔄 배포 프로세스
+## 🔄 Walrus Deployment Process
 
-1. **코드 푸시** → GitHub 저장소
-2. **GitHub Actions 트리거** → 자동 빌드 시작
-3. **빌드 및 테스트** → 의존성 설치, 빌드 실행
-4. **아티팩트 업로드** → 빌드된 파일 GitHub Pages에 배포
-5. **사이트 업데이트** → 자동으로 라이브 사이트 갱신
+1. **Code Push** → GitHub repository
+2. **GitHub Actions Trigger** → Automatic build starts
+3. **Suibase Setup** → Configure Sui mainnet environment
+4. **Build and Deploy** → Install dependencies, build, run Walrus Sites Deploy
+5. **Distributed Storage** → Files are distributed across Walrus network
+6. **Site Registration** → Site information registered on Sui blockchain
+7. **Site Activation** → Accessible at `https://[site-id].wal.app`
 
-## 🌐 라이브 사이트
+## 🌐 Live Site
 
-배포된 사이트: `https://[username].github.io/walrus-site-example/`
+Deployed site: `https://[site-id].wal.app`
 
-## 📝 커스터마이징
+- Site ID is auto-generated during deployment
+- Can be found in GitHub Actions logs
 
-- `src/App.jsx`: 메인 컴포넌트 수정
-- `src/App.css`: 스타일 변경
-- `.github/workflows/deploy.yml`: 배포 설정 조정
-- `vite.config.js`: 빌드 설정 변경
+## 📝 Customization
 
-## ⚡ 특징
+- `src/App.jsx`: Modify main component
+- `src/App.css`: Change styles
+- `.github/workflows/deploy.yml`: Adjust Walrus deployment settings
+- `walrus.config.json`: Change Walrus network configuration
+- `vite.config.js`: Modify build settings
 
-- 빠른 핫 리로드 개발 환경
-- 자동 린팅 및 타입 체크
-- 최적화된 프로덕션 빌드
-- 반응형 디자인
-- 실시간 배포 상태 표시
+## ⚡ Walrus Features
+
+- **Distributed Storage**: Data distributed across 100+ nodes worldwide
+- **High Availability**: Site accessible even if 2/3 of nodes go offline
+- **Censorship Resistance**: Strong against censorship with no centralized servers
+- **Fast Access**: Quick loading with optimized data encoding
+- **Blockchain Security**: Data integrity guaranteed through Sui blockchain
+- **Cost Effective**: Lower cost compared to traditional cloud hosting
+
+## 💰 Cost Information
+
+- **WAL tokens**: Storage costs (for epochs duration)
+- **SUI tokens**: Transaction gas fees
+- **1 epoch = 24 hours** (adjustable in configuration)
+- Example: 5 epochs = 5 days of hosting
+
+## 🔧 Advanced Configuration
+
+### Custom Deployment Settings
+
+You can adjust the following in `walrus.config.json`:
+
+```json
+{
+  "network": "mainnet",        // mainnet or testnet
+  "epochs": 5,                 // hosting duration (days)
+  "gas_budget": 100000000,     // gas budget
+  "force_update": false        // force update flag
+}
+```
+
+### Environment-specific Deployment
+
+```bash
+# Testnet deployment
+npm run deploy:walrus:testnet
+
+# Mainnet deployment (production)
+npm run deploy:walrus
+```
