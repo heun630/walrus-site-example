@@ -14,22 +14,33 @@ This project is configured for Walrus Mainnet deployment.
 
 **Repository Secrets** (Settings → Secrets and variables → Actions → Secrets):
 ```
-Name: SUI_PRIVATE_KEY
-Value: <your_exported_sui_private_key>
+Name: SUI_KEYSTORE
+Value: <full_keystore_file_content>
 ```
 
 **Repository Variables** (Settings → Secrets and variables → Actions → Variables):
 ```
-Name: WALRUS_SITE_OBJECT
+Name: SUI_ADDRESS
+Value: <your_sui_wallet_address>
+
+Name: WALRUS_SITE_OBJECT  
 Value: <site_object_id_after_first_deployment>
+
+Name: WALRUS_CONFIG
+Value: <walrus_client_config_yaml_content>
 ```
 
-Export your private key using:
+**Get your values:**
 ```bash
-sui keytool export --key-identity <your-key-alias>
-```
+# Get SUI_KEYSTORE (full file content)
+cat ~/.sui/sui_config/sui.keystore
 
-**Note**: Leave `WALRUS_SITE_OBJECT` empty for first deployment - it will be created automatically.
+# Get SUI_ADDRESS
+sui client active-address
+
+# Get WALRUS_CONFIG (full file content)
+cat ~/.config/walrus/client_config.yaml
+```
 
 ### 2. Token Preparation
 
@@ -46,13 +57,19 @@ sui client balance
 - Exchange SUI → WAL on Sui DEX or exchanges
 - Or let walrus-sites-deploy auto-purchase
 
-### 3. Configuration
+### 3. First Deployment
 
-The project uses MystenLabs official `site-builder` tool:
-- **Network**: mainnet
-- **Epochs**: 5 (5 days of hosting)
-- **Tool**: Official site-builder from Google Cloud Storage
-- **Method**: Direct publish command
+For the **first deployment**, you need to use `publish` instead of `update`:
+
+```bash
+# Local first deployment (to get WALRUS_SITE_OBJECT)
+npm run build
+curl -L https://storage.googleapis.com/mysten-walrus-binaries/site-builder-mainnet-latest-ubuntu-x86_64 -o site-builder
+chmod +x site-builder
+./site-builder publish dist --epochs 5
+```
+
+Save the returned **site object ID** and add it to GitHub Variables as `WALRUS_SITE_OBJECT`.
 
 ### 4. GitHub Actions Auto Deployment
 
@@ -62,7 +79,10 @@ git commit -m "Deploy to Walrus mainnet"
 git push origin main
 ```
 
-**Uses**: MystenLabs official `site-builder` tool (same as Walrus documentation deployment)
+**Uses**: Exact same workflow as MystenLabs/walrus documentation:
+- Same `site-builder update` command
+- Same environment variables (`SUI_KEYSTORE`, `SUI_ADDRESS`, `WALRUS_CONFIG`)
+- Same `--check-extend` flag
 
 ## ⚠️ Important Notes
 

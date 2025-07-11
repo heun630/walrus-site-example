@@ -30,10 +30,12 @@ sui client new-address --alias walrus-deploy
 ### 2. GitHub Secrets and Variables Setup
 
 **Secrets** (Settings → Secrets and variables → Actions → Secrets):
-- `SUI_PRIVATE_KEY`: Add your Sui wallet's private key
+- `SUI_KEYSTORE`: Full keystore file content
 
 **Variables** (Settings → Secrets and variables → Actions → Variables):
-- `WALRUS_SITE_OBJECT`: Site object ID (auto-created on first deployment)
+- `SUI_ADDRESS`: Your Sui wallet address
+- `WALRUS_SITE_OBJECT`: Site object ID (from first deployment)
+- `WALRUS_CONFIG`: Walrus client config YAML content
 
 ### 3. Local Development
 

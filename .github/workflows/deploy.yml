@@ -1,53 +1,72 @@
-name: Deploy to Walrus Mainnet
+name: Build and Deploy to Walrus
 
 on:
   push:
     branches: [ main ]
   workflow_dispatch:
+    inputs:
+      update-walrus-site:
+        description: "Update the Walrus Site"
+        type: boolean
+        required: true
+        default: true
+
+concurrency: ci-${{ github.ref }}
 
 permissions:
   contents: read
 
-concurrency:
-  group: "walrus-deploy"
-  cancel-in-progress: false
-
-env:
-  NO_COLOR: 1
-  RUST_LOG: info
-  EPOCHS: 5
-
 jobs:
-  build-and-deploy:
+  publish-walrus:
+    name: Update Walrus Site
     runs-on: ubuntu-latest
-    
+    if: ${{ github.event_name == 'push' || inputs.update-walrus-site == true }}
+    env:
+      NO_COLOR: 1
+      RUST_LOG: info
+      EPOCHS: 5
+      BUILD_DIR: dist
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
+      - uses: actions/checkout@v4
       
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        cache: 'npm'
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
         
-    - name: Install dependencies
-      run: npm ci
+      - name: Build
+        run: npm run build
       
-    - name: Build
-      run: npm run build
-      
-    - name: Download site-builder
-      run: |
-        curl -L https://storage.googleapis.com/mysten-walrus-binaries/site-builder-mainnet-latest-ubuntu-x86_64 -o site-builder
-        chmod +x site-builder
-        
-    - name: Deploy to Walrus Sites
-      if: github.ref == 'refs/heads/main'
-      run: |
-        ./site-builder publish dist --epochs $EPOCHS
-      env:
-        SUI_CONFIG_DIR: /tmp/sui-config
-        SUI_KEYSTORE_PATH: /tmp/sui-config/sui.keystore
-        WALLET_PRIVATE_KEY: ${{ secrets.SUI_PRIVATE_KEY }}
-        WALRUS_SITE_OBJECT: ${{ vars.WALRUS_SITE_OBJECT }}
+      - name: Set up Walrus
+        run: |
+          # Download site-builder
+          curl -L https://storage.googleapis.com/mysten-walrus-binaries/site-builder-mainnet-latest-ubuntu-x86_64 -o site-builder
+          chmod +x site-builder
+          
+          # Setup Sui configuration
+          mkdir -p ~/.sui/sui_config
+          echo '${{ secrets.SUI_KEYSTORE }}' > ~/.sui/sui_config/sui.keystore
+          
+          # Create client config
+          cat > ~/.sui/sui_config/client.yaml << EOF
+          keystore:
+            File: ~/.sui/sui_config/sui.keystore
+          envs:
+            - alias: mainnet
+              rpc: "https://fullnode.mainnet.sui.io:443"
+              ws: ~
+              basic_auth: ~
+          active_env: mainnet
+          active_address: "${{ vars.SUI_ADDRESS }}"
+          EOF
+          
+          # Create Walrus config
+          echo '${{ vars.WALRUS_CONFIG }}' > ~/.config/walrus/client_config.yaml || mkdir -p ~/.config/walrus && echo '${{ vars.WALRUS_CONFIG }}' > ~/.config/walrus/client_config.yaml
+
+      - name: Update Walrus Site
+        run: |
+          ./site-builder update ${{ env.BUILD_DIR }} ${{ vars.WALRUS_SITE_OBJECT }} --epochs ${{ env.EPOCHS }} --check-extend
