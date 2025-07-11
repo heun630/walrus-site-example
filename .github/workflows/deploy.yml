@@ -47,6 +47,11 @@ jobs:
           curl -L https://storage.googleapis.com/mysten-walrus-binaries/site-builder-mainnet-latest-ubuntu-x86_64 -o site-builder
           chmod +x site-builder
           
+          # Download walrus CLI (required by site-builder)
+          curl -L https://storage.googleapis.com/mysten-walrus-binaries/walrus-mainnet-latest-ubuntu-x86_64 -o walrus
+          chmod +x walrus
+          sudo mv walrus /usr/local/bin/walrus
+          
           # Skip validation - GitHub masks secrets in logs
           
           # Setup Sui configuration
