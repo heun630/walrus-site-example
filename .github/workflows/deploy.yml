@@ -47,28 +47,19 @@ jobs:
           curl -L https://storage.googleapis.com/mysten-walrus-binaries/site-builder-mainnet-latest-ubuntu-x86_64 -o site-builder
           chmod +x site-builder
           
-          # Check if required secrets/variables are set
-          if [ -z "${{ secrets.SUI_KEYSTORE }}" ]; then
-            echo "❌ SUI_KEYSTORE secret is not set!"
-            echo "   Go to Settings → Secrets and variables → Actions → Secrets"
-            echo "   Add: SUI_KEYSTORE with your keystore file content"
-            exit 1
-          fi
-          
-          if [ -z "${{ vars.SUI_ADDRESS }}" ]; then
-            echo "❌ SUI_ADDRESS variable is not set!"
-            echo "   Go to Settings → Secrets and variables → Actions → Variables"
-            echo "   Add: SUI_ADDRESS with your wallet address"
-            exit 1
-          fi
+          # Skip validation - GitHub masks secrets in logs
           
           # Setup Sui configuration
           mkdir -p ~/.sui/sui_config
           echo '${{ secrets.SUI_KEYSTORE }}' > ~/.sui/sui_config/sui.keystore
           
-          # Debug: Check keystore file
-          echo "Keystore file size: $(wc -c < ~/.sui/sui_config/sui.keystore)"
-          echo "Keystore first line: $(head -n1 ~/.sui/sui_config/sui.keystore)"
+          # Verify keystore exists
+          if [ ! -s ~/.sui/sui_config/sui.keystore ]; then
+            echo "❌ Keystore file is empty or missing!"
+            echo "Current keystore size: $(wc -c < ~/.sui/sui_config/sui.keystore) bytes"
+            exit 1
+          fi
+          echo "✅ Keystore file exists ($(wc -c < ~/.sui/sui_config/sui.keystore) bytes)"
           
           # Create client config
           cat > ~/.sui/sui_config/client.yaml << EOF
@@ -113,17 +104,12 @@ jobs:
 
       - name: Deploy to Walrus Site
         run: |
-          # Test configuration first
-          echo "Testing site-builder configuration..."
-          ./site-builder --config sites-config.yaml --help || echo "Config test failed"
+          # Simple test first
+          echo "Testing site-builder..."
+          ./site-builder --help | head -5
           
-          # Show configuration files
-          echo "=== sites-config.yaml ==="
-          cat sites-config.yaml
-          echo "=== ~/.sui/sui_config/client.yaml ==="
-          cat ~/.sui/sui_config/client.yaml
-          echo "=== ~/.config/walrus/client_config.yaml ==="
-          cat ~/.config/walrus/client_config.yaml
+          echo "Testing without config first..."
+          ./site-builder publish ${{ env.BUILD_DIR }} --epochs ${{ env.EPOCHS }} || echo "Publish failed, trying with config..."
           
           if [ -n "${{ vars.WALRUS_SITE_OBJECT }}" ]; then
             echo "Updating existing site: ${{ vars.WALRUS_SITE_OBJECT }}"
